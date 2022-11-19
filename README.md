@@ -64,10 +64,6 @@ go get -v github.com/it234/domainchain
 - eth address : 0x68ca43651529D12996183d09a052a654F845cB89
 - eos address : 123451234534
 
-## 相关文章
-
-- [如何使用goapp写你的后台管理系统] - [https://www.cnblogs.com/hotion/p/11665837.html/](https://www.cnblogs.com/hotion/p/11665837.html/)
-
 ## 感谢以下框架的开源支持
 
 - [cosmos] - [https://cosmos.network/](https://cosmos.network/)
