@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>区块列表</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1-9-4/themes/default/easyui.css" />
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/locale/easyui-lang-zh_CN.js"></script>
+</head>
+
+<body class="easyui-layout">
+
+
+    <div region="center" style="padding: 5px;" border="false">
+        <table id="ui_dg"></table>
+    </div>
+</body>
+
+<script>
+    $(function () {
+        fun_dg_loadGrid();
+    });
+
+    var datagridIDField = "hight"; // datagrid的ID字段
+    var datagridSortName = "hight";  // datagrid的排序字段
+    var datagridSortOrder = "desc"; // datagrid的排序类型
+    var datagridRownumbers = true; // datagrid是否显示行号
+    var datagridPagination = true; // datagrid是否显示分页
+    var datagridPageSize = 20; // datagrid-每页记录数
+    var datagridPageList = [5, 10, 15, 20, 30, 50]; // datagrid-每页记录数选项
+    var datagridIDBase = "#ui_dg";
+    var successCode = 1000; // 操作成功返回的状态码
+
+    var datagridIDThis = "#ui_dg";
+    // 加载数据，列表页用到 
+    function fun_dg_loadGrid() {
+        var url = "/get_block_page_list";
+        var columns = [[
+            {
+                field: 'hight', title: '区块高度', sortable: true, formatter: function (value, row, index) {
+                    return setUrl(row.hight,value);
+                }
+            },
+            {
+                field: 'hash', title: '区块hash', sortable: false
+            }
+        ]]
+        base_dg_loadGrid("", columns, url, "", "", "");
+    }
+
+    // 格式化单元格
+    function setUrl(hight,value) {
+        return "<a href=/static/html/p_blk_info.html?hight=" + hight + " target='_blank'>" + value + "</a>";
+    }
+
+    // 表格列表处理
+    function base_dg_loadGrid(datagridID, columns, url, datagridIDFieldThis, datagridSortNameThis, datagridSortOrderThis) {
+        if (datagridID == "") {
+            datagridID = datagridIDBase;
+        }
+        if (datagridIDFieldThis == "") {
+            datagridIDFieldThis = datagridIDField;
+        }
+        if (datagridSortNameThis == "") {
+            datagridSortNameThis = datagridSortName;
+        }
+        if (datagridSortOrderThis == "") {
+            datagridSortOrderThis = datagridSortOrder;
+        }
+        $(datagridID).datagrid({
+            method: 'GET',
+            title: '', fitColumns: true, fit: true, fitColumns: true,
+            dataType: 'json',
+            url: url,
+            columns: columns,
+            idField: datagridIDFieldThis,
+            sortName: datagridSortNameThis,
+            sortOrder: datagridSortOrderThis,
+            rownumbers: datagridRownumbers,
+            pagination: datagridPagination,
+            pageSize: datagridPageSize,                //每页记录数
+            pageList: datagridPageList, //分页记录数数组
+            loader: function (param, success, error) {
+                datagridGetData(datagridID, param, success, error)
+            },
+            onLoadSuccess: function (data, param) {
+                //分页数据加载完毕后执行
+                if (data.rows.length == 0) {
+                    //如果没有数据
+                    datagridNotData(datagridID)
+                }
+            },
+            onLoadError: function (data) {
+                datagridNotData(datagridID)
+            }
+        });
+    }
+
+    // datagrid数据加载处理
+    function datagridGetData(datagridID, param, success, error) {
+        var opts = $(datagridID).datagrid('options');
+        if (!opts.url) return false;
+        $.ajax({
+            type: opts.method,
+            url: opts.url,
+            data: param,   // param
+            dataType: 'json',
+            success: function (data) {
+                if (data.code == successCode) {
+                    success(data);
+                }
+                else {
+                    error(data);
+                }
+            },
+            error: function () {
+                error.apply(this, arguments);
+            }
+        });
+    }
+
+    // 当datagrid没有数据时的显示处理
+    function datagridNotData(datagridID) {
+        var columnLength = $(datagridID).datagrid('getColumnFields').length; // 获取表格列数
+        var body = $(datagridID).data().datagrid.dc.body2;
+        body.find('table tbody').append('<tr><td width="' + body.width() + '" style="height: 25px; padding:10px;text-align: left;"  colspan=' + columnLength + '>没有任何结果数据显示！</td></tr>');
+    }
+</script>
+
+</html>

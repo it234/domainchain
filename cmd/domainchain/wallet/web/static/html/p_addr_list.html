@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>地址列表</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1-9-4/themes/default/easyui.css" />
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/locale/easyui-lang-zh_CN.js"></script>
+    <script>
+        function getAddrList() {
+            $.ajax({
+                url: "/get_addr_list",
+                type: "get",
+                dataType: "json",
+                //async: false,
+                timeout: 105000,
+                success: function (result) {
+                    if (result.code == 1000) {
+                        var rows = result.rows;
+                        var columns = [[
+                            {
+                                field: 'addr', title: '地址', sortable: false, formatter: function (value, row, index) {
+                                    return setUrl(row.addr, value);
+                                }
+                            }, {
+                                field: 'balance', title: '余额', sortable: false
+                            }
+                        ]];
+                        $('#dg').datagrid({
+                            data: rows,
+                            columns: columns
+                        });
+
+                    } else {
+                        alert("fail");
+                    }
+                }
+            });
+        }
+
+        // 创建一个新地址
+        function createAddr() {
+            $.ajax({
+                url: "/get_new_addr",
+                type: "get",
+                dataType: "json",
+                timeout: 105000,
+                success: function (result) {
+                    if (result.code == 1000) {
+                        getAddrList();
+                    } else {
+                        alert("fail");
+                    }
+                }
+            });
+        }
+
+        // 格式化单元格
+        function setUrl(addr, value) {
+            return "<a href=/static/html/p_addr_info.html?addr=" + addr + " target='_blank'>" + value + "</a>";
+        }
+
+        $(function () {
+            getAddrList();
+        });
+    </script>
+</head>
+
+<body>
+    <a href="javascript:void(0)" onclick="createAddr()">创建一个新地址</a> <br />
+    <a href="/static/html/p_issue.html" target="_blank">发行</a> <br />
+    <a href="/static/html/p_tran.html" target="_blank">转账</a> 
+    <br /> <br />
+    <table id="dg" data-options="
+    rownumbers:false,
+    singleSelect:true,
+    autoRowHeight:true,
+    pagination:false">
+    </table>
+</body>
+
+</html>

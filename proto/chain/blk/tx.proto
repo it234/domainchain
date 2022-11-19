@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package blk;
+
+option go_package = "blk";
+
+enum TxType {
+    TxType_UNKNOWN_ERROR = 0;
+    ISSUE = 1;
+    TRANSFER = 2;
+}
+
+message Tx {
+    bytes from_pub_key = 1;
+    TxType tx_type = 2;
+    bytes payload =3;
+    bytes data = 4;
+    bytes signature = 5;
+}

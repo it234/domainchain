@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>交易信息</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1-9-4/themes/default/easyui.css" />
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/locale/easyui-lang-zh_CN.js"></script>
+    <script>
+        // JS获取url参数
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                if (pair[0] == variable) { return pair[1]; }
+            }
+            return "";
+        }
+
+        function getTxInfo() {
+            var addr = getQueryVariable('addr');
+            var hash = getQueryVariable('hash');
+            $.ajax({
+                url: "/get_tx_by_hash?addr=" + addr + "&hash=" + hash,
+                type: "get",
+                dataType: "json",
+                timeout: 105000,
+                success: function (result) {
+                    if (result.code == 1000) {
+                        // 处理交易基础信息
+                        document.getElementById('txInfo').innerHTML = "交易HASH: " + result.hash + "<br>发送方地址: " + result.from_addr + "<br>接收方地址: " + result.to_addr + "<br>金额: " + result.amount + "<br>交易序号: " + result.sequence + "<br>附带数据: " + result.data + "<br>" + "<br>交易签名: " + result.signature + "<br>";
+                    } else {
+                        alert("fail");
+                    }
+                }
+            });
+        }
+
+        $(function () {
+            getTxInfo();
+        });
+    </script>
+</head>
+
+<body>
+    <div id="txInfo">
+    </div>
+</body>
+
+</html>

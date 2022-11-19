@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package blk;
+
+option go_package = "blk";
+
+message TxTransfer {
+    bytes to_addr = 1;
+    uint64 amount =2;
+    uint64 sequence =3;
+}

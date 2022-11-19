@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>地址信息</title>
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1-9-4/themes/default/easyui.css" />
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1-9-4/locale/easyui-lang-zh_CN.js"></script>
+    <script>
+        // JS获取url参数
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                if (pair[0] == variable) { return pair[1]; }
+            }
+            return "";
+        }
+
+        function getBlockInfo() {
+            var addr = getQueryVariable('addr')
+            $.ajax({
+                url: "/get_addr_info?addr=" + addr,
+                type: "get",
+                dataType: "json",
+                //async: false,
+                timeout: 105000,
+                success: function (result) {
+                    if (result.code == 1000) {
+                        // 处理区块基础信息
+                        document.getElementById('addrInfo').innerHTML = "地址:" + result.addr + "<br>余额:" + result.balance + "<br> <br>";
+
+                        // 处理交易hash列表
+                        var rows = [];
+                        $.each(result.tx_hash, function (index, value) {
+                            rows.push({
+                                hash: value
+                            });
+                        });
+                        var columns = [[
+                            {
+                                field: 'hash', title: '交易hash', sortable: false, formatter: function (value, row, index) {
+                                    return setUrl(result.addr, row.hash, value);
+                                }
+                            }
+                        ]];
+                        $('#dg').datagrid({
+                            data: rows,
+                            columns: columns
+                        });
+
+                    } else {
+                        alert("fail");
+                    }
+                }
+            });
+        }
+
+        // 格式化单元格
+        function setUrl(addr, hash, value) {
+            return "<a href=/static/html/p_tx_info.html?addr=" + addr + "&hash=" + hash + " target='_blank'>" + value + "</a>";
+        }
+
+        $(function () {
+            getBlockInfo();
+        });
+    </script>
+</head>
+
+<body>
+    <div id="addrInfo">
+    </div>
+    <table id="dg" data-options="
+    rownumbers:false,
+    singleSelect:true,
+    autoRowHeight:true,
+    pagination:false">
+    </table>
+</body>
+
+</html>
